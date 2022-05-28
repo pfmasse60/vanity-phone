@@ -1,0 +1,41 @@
+# Vanity Telephone Numbers
+
+service: vanityserverless
+frameworkVersion: '2'
+
+custom:
+  tablename: vanityNumbers
+  dynamodb:
+    stages:
+      - dev
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  lambdaHashingVersion: 20201221
+  profile: serverlessUser
+
+
+functions:
+  vanityPhoneNumbers:
+    handler: handler.vanity
+
+resources:
+  Resources:
+    VanityTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: "${self:custom.tablename}"
+        AttributeDefinitions:
+          - AttributeName: "phoneNumber"
+            AttributeType: "S"
+          - AttributeName: "Id"
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: "phoneNumber"
+            KeyType: "HASH"
+          - AttributeName: "Id"
+            KeyType: "RANGE"
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
